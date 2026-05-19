@@ -4,7 +4,7 @@ interface RedirectRow {
   id: string
   source: string
   destination: string
-  publishedAt: Date
+  createdAt: Date
   status: "active" | "deleted"
   hasUnpublishedChanges: boolean
 }
@@ -48,7 +48,7 @@ export const listRedirects = async ({
       id: String(row.id),
       source: row.source,
       destination: row.destination,
-      publishedAt: row.createdAt,
+      createdAt: row.createdAt,
       status: row.deletedAt ? ("deleted" as const) : ("active" as const),
       hasUnpublishedChanges: false,
     })),

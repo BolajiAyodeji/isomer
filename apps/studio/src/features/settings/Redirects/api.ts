@@ -1,6 +1,6 @@
 import { keepPreviousData } from "@tanstack/react-query"
 import { atom, useAtom } from "jotai"
-import { useMemo } from "react"
+import { useCallback, useMemo } from "react"
 import { trpc } from "~/utils/trpc"
 
 import type { RedirectRow } from "./types"
@@ -93,10 +93,10 @@ export function useCreateRedirect(): {
     destination: string
   }) => {
     const newRow: RedirectRow = {
-      id: `draft-${Date.now()}`,
+      id: `draft-${crypto.randomUUID()}`,
       source,
       destination,
-      publishedAt: null,
+      createdAt: null,
       status: "draft",
       hasUnpublishedChanges: true,
     }
@@ -117,26 +117,29 @@ export function useDeleteRedirect(): {
   const [, setDraftsMap] = useAtom(localDraftsAtom)
   const [, setPendingDeletesMap] = useAtom(pendingDeletesAtom)
 
-  const mutate = ({ siteId, id }: { siteId: number; id: string }) => {
-    if (id.startsWith("draft-")) {
-      setDraftsMap((prev) => {
-        const next = new Map(prev)
-        const drafts = next.get(siteId) ?? []
-        next.set(
-          siteId,
-          drafts.filter((row) => row.id !== id),
-        )
-        return next
-      })
-    } else {
-      setPendingDeletesMap((prev) => {
-        const next = new Map(prev)
-        const deletes = next.get(siteId) ?? new Set<string>()
-        next.set(siteId, new Set([...deletes, id]))
-        return next
-      })
-    }
-  }
+  const mutate = useCallback(
+    ({ siteId, id }: { siteId: number; id: string }) => {
+      if (id.startsWith("draft-")) {
+        setDraftsMap((prev) => {
+          const next = new Map(prev)
+          const drafts = next.get(siteId) ?? []
+          next.set(
+            siteId,
+            drafts.filter((row) => row.id !== id),
+          )
+          return next
+        })
+      } else {
+        setPendingDeletesMap((prev) => {
+          const next = new Map(prev)
+          const deletes = next.get(siteId) ?? new Set<string>()
+          next.set(siteId, new Set([...deletes, id]))
+          return next
+        })
+      }
+    },
+    [setDraftsMap, setPendingDeletesMap],
+  )
   return { mutate, isPending: false }
 }
 

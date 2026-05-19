@@ -22,11 +22,19 @@ export const RedirectsHeader = ({
 
   const prevIsPending = useRef(false)
   useEffect(() => {
-    if (prevIsPending.current && !isPending && !isError) {
-      toast({
-        ...SETTINGS_TOAST_MESSAGES.success,
-        status: "success",
-      })
+    if (prevIsPending.current && !isPending) {
+      if (isError) {
+        toast({
+          title: "Failed to publish",
+          description: "Something went wrong. Please try again.",
+          status: "error",
+        })
+      } else {
+        toast({
+          ...SETTINGS_TOAST_MESSAGES.success,
+          status: "success",
+        })
+      }
     }
     prevIsPending.current = isPending
   }, [isPending, isError, toast])

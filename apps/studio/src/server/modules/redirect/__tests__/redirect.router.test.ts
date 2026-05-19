@@ -73,7 +73,7 @@ describe("redirect.router", async () => {
         status: "active",
         hasUnpublishedChanges: false,
       })
-      expect(result.items[0]!.publishedAt).toBeInstanceOf(Date)
+      expect(result.items[0]!.createdAt).toBeInstanceOf(Date)
       expect(typeof result.items[0]!.id).toBe("string")
     })
 

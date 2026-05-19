@@ -38,11 +38,13 @@ export const listRedirectsSchema = z.object({
 
 export const publishRedirectsSchema = z.object({
   siteId: z.number().min(1),
-  creates: z.array(
-    z.object({
-      source: sourceSchema,
-      destination: destinationSchema,
-    }),
-  ),
-  deletes: z.array(z.string().min(1)),
+  creates: z
+    .array(
+      z.object({
+        source: sourceSchema,
+        destination: destinationSchema,
+      }),
+    )
+    .max(500),
+  deletes: z.array(z.string().min(1)).max(500),
 })

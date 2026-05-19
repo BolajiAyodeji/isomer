@@ -25,7 +25,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import {
   BiDownArrowAlt,
   BiSortAlt2,
@@ -160,13 +160,13 @@ const getColumns = (onDelete: (id: string) => void) => [
       </Tooltip>
     ),
   }),
-  columnsHelper.accessor("publishedAt", {
+  columnsHelper.accessor("createdAt", {
     size: 160,
     enableSorting: true,
     sortUndefined: "last",
     header: ({ column }) => (
       <SortableHeader
-        label="Published"
+        label="Created"
         isSorted={column.getIsSorted()}
         onClick={column.getToggleSortingHandler()}
       />
@@ -175,7 +175,7 @@ const getColumns = (onDelete: (id: string) => void) => [
       const val = getValue()
       return (
         <Text textStyle="body-2" color="base.content.medium">
-          {val ? formatDate(val) : "not published yet"}
+          {val ? formatDate(val) : "—"}
         </Text>
       )
     },
@@ -259,7 +259,7 @@ const SORT_COLUMN_MAP: Record<string, "source" | "destination" | "createdAt"> =
   {
     source: "source",
     destination: "destination",
-    publishedAt: "createdAt",
+    createdAt: "createdAt",
   }
 
 const PAGE_SIZE = 25
@@ -293,7 +293,10 @@ export const RedirectsTable = ({
   })
 
   const { mutate: deleteRedirect } = useDeleteRedirect()
-  const handleDelete = (id: string) => deleteRedirect({ siteId, id })
+  const handleDelete = useCallback(
+    (id: string) => deleteRedirect({ siteId, id }),
+    [deleteRedirect, siteId],
+  )
   const columns = useMemo(() => getColumns(handleDelete), [handleDelete])
 
   const handleSortingChange: OnChangeFn<SortingState> = (updater) => {

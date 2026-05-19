@@ -6,7 +6,7 @@ export interface RedirectRow {
   id: string
   source: string
   destination: string
-  publishedAt: Date | null
+  createdAt: Date | null
   status: RedirectStatus
   hasUnpublishedChanges: boolean
 }
