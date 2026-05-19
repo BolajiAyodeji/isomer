@@ -187,6 +187,9 @@ export function usePublishRedirects(): {
     const localDrafts = localDraftsMap.get(siteId) ?? []
     const pendingDeletes = pendingDeletesMap.get(siteId) ?? new Set<string>()
 
+    const submittedDraftIds = new Set(localDrafts.map((d) => d.id))
+    const submittedDeleteIds = new Set(pendingDeletes)
+
     serverPublish(
       {
         siteId,
@@ -200,12 +203,28 @@ export function usePublishRedirects(): {
         onSuccess: () => {
           setDraftsMap((prev) => {
             const next = new Map(prev)
-            next.delete(siteId)
+            const remaining = (next.get(siteId) ?? []).filter(
+              (d) => !submittedDraftIds.has(d.id),
+            )
+            if (remaining.length > 0) {
+              next.set(siteId, remaining)
+            } else {
+              next.delete(siteId)
+            }
             return next
           })
           setPendingDeletesMap((prev) => {
             const next = new Map(prev)
-            next.delete(siteId)
+            const remaining = new Set(
+              [...(next.get(siteId) ?? [])].filter(
+                (id) => !submittedDeleteIds.has(id),
+              ),
+            )
+            if (remaining.size > 0) {
+              next.set(siteId, remaining)
+            } else {
+              next.delete(siteId)
+            }
             return next
           })
           void utils.redirect.list.invalidate()
