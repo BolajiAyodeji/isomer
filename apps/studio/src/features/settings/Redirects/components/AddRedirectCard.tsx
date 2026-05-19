@@ -52,7 +52,7 @@ export const AddRedirectCard = ({
   const handleAdd = () => {
     if (isAddDisabled) return
     if (!validate()) return
-    const normalisedSource = `/${source.replace(/^\/+/, "")}`
+    const normalisedSource = `/${source.replace(/^\/+/, "").replace(/\/+$/, "")}`
     createRedirect({ siteId, source: normalisedSource, destination })
     setSource("")
     setDestination("")
@@ -97,7 +97,8 @@ export const AddRedirectCard = ({
                   transliterate(e.target.value)
                     .toLowerCase()
                     .replace(/[^a-z0-9/-]/g, "-")
-                    .replace(/^\/+/, ""),
+                    .replace(/^\/+/, "")
+                    .replace(/\/{2,}/g, "/"),
                 )
               }
               onBlur={validate}
