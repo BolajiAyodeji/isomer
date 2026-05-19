@@ -20,14 +20,19 @@ export const listRedirects = async ({
   sortDirection,
   offset,
   limit,
+  excludeSources,
 }: {
   siteId: number
   sortBy: "source" | "destination" | "createdAt"
   sortDirection: "asc" | "desc"
   offset: number
   limit: number
+  excludeSources: string[]
 }): Promise<ListRedirectsResult> => {
-  const baseQuery = db.selectFrom("Redirect").where("siteId", "=", siteId)
+  let baseQuery = db.selectFrom("Redirect").where("siteId", "=", siteId)
+  if (excludeSources.length > 0) {
+    baseQuery = baseQuery.where("source", "not in", excludeSources)
+  }
 
   const [items, countResult] = await Promise.all([
     baseQuery

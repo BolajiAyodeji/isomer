@@ -42,6 +42,10 @@ export function useListRedirects(
   const pendingDeletes = pendingDeletesMap.get(siteId) ?? new Set<string>()
 
   const draftCount = localDrafts.length
+  const draftSources = useMemo(
+    () => localDrafts.map((d) => d.source),
+    [localDrafts],
+  )
   const virtualStart = pageIndex * pageSize
   const virtualEnd = virtualStart + pageSize
 
@@ -58,7 +62,14 @@ export function useListRedirects(
     isLoading,
     isFetching,
   } = trpc.redirect.list.useQuery(
-    { siteId, offset: serverOffset, limit: serverLimit, sortBy, sortDirection },
+    {
+      siteId,
+      offset: serverOffset,
+      limit: serverLimit,
+      sortBy,
+      sortDirection,
+      excludeSources: draftSources,
+    },
     { placeholderData: keepPreviousData },
   )
 

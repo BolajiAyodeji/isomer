@@ -34,6 +34,7 @@ export const listRedirectsSchema = z.object({
   sortDirection: z.enum(["asc", "desc"]).optional().default("desc"),
   offset: z.number().min(0).optional().default(0),
   limit: z.number().min(0).max(100).optional().default(25),
+  excludeSources: z.array(z.string()).optional().default([]),
 })
 
 export const publishRedirectsSchema = z.object({
