@@ -32,8 +32,8 @@ export const listRedirectsSchema = z.object({
     .optional()
     .default("createdAt"),
   sortDirection: z.enum(["asc", "desc"]).optional().default("desc"),
-  page: z.number().min(1).optional().default(1),
-  pageSize: z.number().min(1).max(100).optional().default(25),
+  offset: z.number().min(0).optional().default(0),
+  limit: z.number().min(0).max(100).optional().default(25),
 })
 
 export const publishRedirectsSchema = z.object({

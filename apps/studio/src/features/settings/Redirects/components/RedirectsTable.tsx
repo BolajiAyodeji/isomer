@@ -286,7 +286,7 @@ export const RedirectsTable = ({
     totalCount,
     isFetching,
   } = useListRedirects(siteId, {
-    page: pagination.pageIndex + 1,
+    pageIndex: pagination.pageIndex,
     pageSize: PAGE_SIZE,
     sortBy,
     sortDirection,

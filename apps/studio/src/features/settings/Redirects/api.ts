@@ -19,7 +19,7 @@ export function useHasDirtyRedirects(siteId: number): boolean {
 export function useListRedirects(
   siteId: number,
   options?: {
-    page?: number
+    pageIndex?: number
     pageSize?: number
     sortBy?: "source" | "destination" | "createdAt"
     sortDirection?: "asc" | "desc"
@@ -30,24 +30,37 @@ export function useListRedirects(
   isLoading: boolean
   isFetching: boolean
 } {
-  const page = options?.page ?? 1
+  const pageIndex = options?.pageIndex ?? 0
   const pageSize = options?.pageSize ?? 25
   const sortBy = options?.sortBy ?? "createdAt"
   const sortDirection = options?.sortDirection ?? "desc"
+
+  const [localDraftsMap] = useAtom(localDraftsAtom)
+  const [pendingDeletesMap] = useAtom(pendingDeletesAtom)
+
+  const localDrafts = localDraftsMap.get(siteId) ?? []
+  const pendingDeletes = pendingDeletesMap.get(siteId) ?? new Set<string>()
+
+  const draftCount = localDrafts.length
+  const virtualStart = pageIndex * pageSize
+  const virtualEnd = virtualStart + pageSize
+
+  const draftsForPage = localDrafts.slice(
+    Math.max(0, virtualStart),
+    Math.min(draftCount, virtualEnd),
+  )
+
+  const serverOffset = Math.max(0, virtualStart - draftCount)
+  const serverLimit = pageSize - draftsForPage.length
 
   const {
     data: serverData,
     isLoading,
     isFetching,
   } = trpc.redirect.list.useQuery(
-    { siteId, page, pageSize, sortBy, sortDirection },
+    { siteId, offset: serverOffset, limit: serverLimit, sortBy, sortDirection },
     { placeholderData: keepPreviousData },
   )
-  const [localDraftsMap] = useAtom(localDraftsAtom)
-  const [pendingDeletesMap] = useAtom(pendingDeletesAtom)
-
-  const localDrafts = localDraftsMap.get(siteId) ?? []
-  const pendingDeletes = pendingDeletesMap.get(siteId) ?? new Set<string>()
 
   const merged = useMemo(() => {
     const serverRows: RedirectRow[] = (serverData?.items ?? []).map((row) => {
@@ -60,15 +73,14 @@ export function useListRedirects(
       }
       return row
     })
-    if (page === 1) {
-      return [...localDrafts, ...serverRows]
-    }
-    return serverRows
-  }, [serverData, localDrafts, pendingDeletes, page])
+    return [...draftsForPage, ...serverRows]
+  }, [serverData, draftsForPage, pendingDeletes])
+
+  const serverTotal = serverData?.totalCount ?? 0
 
   return {
     data: merged,
-    totalCount: serverData?.totalCount ?? 0,
+    totalCount: serverTotal + draftCount,
     isLoading,
     isFetching,
   }

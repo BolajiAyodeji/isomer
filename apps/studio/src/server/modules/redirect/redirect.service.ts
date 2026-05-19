@@ -18,17 +18,15 @@ export const listRedirects = async ({
   siteId,
   sortBy,
   sortDirection,
-  page,
-  pageSize,
+  offset,
+  limit,
 }: {
   siteId: number
   sortBy: "source" | "destination" | "createdAt"
   sortDirection: "asc" | "desc"
-  page: number
-  pageSize: number
+  offset: number
+  limit: number
 }): Promise<ListRedirectsResult> => {
-  const offset = (page - 1) * pageSize
-
   const baseQuery = db.selectFrom("Redirect").where("siteId", "=", siteId)
 
   const [items, countResult] = await Promise.all([
@@ -36,7 +34,7 @@ export const listRedirects = async ({
       .select(["id", "source", "destination", "createdAt", "deletedAt"])
       .orderBy(sortBy, sortDirection)
       .offset(offset)
-      .limit(pageSize)
+      .limit(limit)
       .execute(),
     baseQuery
       .select(sql<number>`count(*)::int`.as("count"))

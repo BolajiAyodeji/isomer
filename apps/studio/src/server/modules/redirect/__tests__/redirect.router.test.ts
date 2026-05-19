@@ -108,11 +108,11 @@ describe("redirect.router", async () => {
           .execute()
       }
 
-      const page1 = await caller.list({ siteId, page: 1, pageSize: 2 })
+      const page1 = await caller.list({ siteId, offset: 0, limit: 2 })
       expect(page1.items).toHaveLength(2)
       expect(page1.totalCount).toBe(5)
 
-      const page3 = await caller.list({ siteId, page: 3, pageSize: 2 })
+      const page3 = await caller.list({ siteId, offset: 4, limit: 2 })
       expect(page3.items).toHaveLength(1)
       expect(page3.totalCount).toBe(5)
     })
