@@ -27,6 +27,7 @@ export function useListRedirects(
 ): {
   data: RedirectRow[]
   totalCount: number
+  draftCount: number
   isLoading: boolean
   isFetching: boolean
 } {
@@ -92,6 +93,7 @@ export function useListRedirects(
   return {
     data: merged,
     totalCount: serverTotal + draftCount,
+    draftCount,
     isLoading,
     isFetching,
   }

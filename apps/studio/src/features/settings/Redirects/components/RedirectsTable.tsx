@@ -25,7 +25,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   BiDownArrowAlt,
   BiSortAlt2,
@@ -284,6 +284,7 @@ export const RedirectsTable = ({
   const {
     data: redirects,
     totalCount,
+    draftCount,
     isFetching,
   } = useListRedirects(siteId, {
     pageIndex: pagination.pageIndex,
@@ -291,6 +292,14 @@ export const RedirectsTable = ({
     sortBy,
     sortDirection,
   })
+
+  const prevDraftCount = useRef(draftCount)
+  useEffect(() => {
+    if (draftCount > prevDraftCount.current) {
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+    }
+    prevDraftCount.current = draftCount
+  }, [draftCount])
 
   const { mutate: deleteRedirect } = useDeleteRedirect()
   const handleDelete = useCallback(
