@@ -272,7 +272,7 @@ export const pushDocumentsForIngestion = async (documents: PushDocument[]) => {
       "Failed to push documents for ingestion",
     )
     throw new Error(
-      `Failed to push documents for ingestion: ${response.statusText}`,
+      `Failed to push documents for ingestion: ${response.statusText} ${errorText}`,
     )
   }
 
