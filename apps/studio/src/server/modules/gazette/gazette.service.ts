@@ -189,8 +189,9 @@ export const removeGazetteFromSearchIndex = async (
   )
 
   if (!response.ok) {
+    const error = await response.json()
     logger.warn(
-      { status: response.status, documentId },
+      { status: response.status, documentId, error },
       "Failed to remove gazette from search index",
     )
     throw new TRPCError({
